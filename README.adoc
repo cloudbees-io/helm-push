@@ -1,0 +1,60 @@
+= CloudBees action: Push a Helm chart
+
+Use this action to upload, or publish, a packaged Helm chart into a repository.
+
+== Inputs
+
+[cols="2a,1a,1a,3a",options="header"]
+.Input details
+|===
+
+| Input name
+| Data type
+| Required?
+| Description
+
+| `chart`
+| String
+| Yes
+| The path of the Helm chart package to be published.
+
+| `remote`
+| String
+| Yes
+| The URL of the published Helm chart package.
+
+|===
+
+== Usage example
+
+In your YAML file, add:
+
+[source,yaml]
+----
+    - id: helmpkg
+      name: Package Helm chart
+      uses: cloudbees-io/helm-package@v1
+      with:
+        chart: ./charts/example
+        destination: ./packaged-charts
+        version: "0.0.1"
+
+    - name: Push Helm chart
+      uses: cloudbees-io/helm-push@v1
+      with:
+        chart: ${{ steps.helmpkg.outputs.chart }}
+        remote: oci://registry.example.com/example
+
+----
+
+For more information, refer to link:https://github.com/cloudbees-io/helm-package[CloudBees action: Package a Helm chart].
+
+== License
+
+This code is made available under the 
+link:https://opensource.org/license/mit/[MIT license].
+
+== References
+
+* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform-actions/latest/[using actions in CloudBees workflows].
+* Learn about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/[the CloudBees platform].

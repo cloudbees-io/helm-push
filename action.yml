@@ -1,0 +1,38 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: action
+name: helm-push
+description: 'Publish a Helm chart'
+
+inputs:
+  chart:
+    description: Path to the packaged chart.
+    required: true
+  remote:
+    description: Registry to publish the chart to.
+    required: true
+
+outputs:
+  chart:
+    description: The image reference pointing to the chart upload location.
+    value: ${{ steps.push.outputs.chart }}
+  version:
+    description: Version of the uploaded chart.
+    value: ${{ steps.push.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - id: push
+      name: Publish Helm chart
+      uses: docker://alpine/helm:3.12.1
+      run: |
+        set -u
+        CHART_NAME="$(helm show chart "$CHART" | grep -E '^name: ' | sed -E 's/^name: //')"
+        CHART_VERSION="$(helm show chart "$CHART" | grep -E '^version: ' | sed -E 's/^version: //')"
+        printf %s "${REMOTE}/${CHART_NAME}" > $CLOUDBEES_OUTPUTS/chart
+        printf %s "${CHART_VERSION}" > $CLOUDBEES_OUTPUTS/version
+        set -x
+        helm push "$CHART" "$REMOTE"
+      env:
+        CHART: ${{ inputs.chart }}
+        REMOTE: ${{ inputs.remote }}

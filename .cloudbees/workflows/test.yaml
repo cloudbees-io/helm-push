@@ -1,0 +1,45 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: workflow
+name: test
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    steps:
+    - name: Get source code
+      uses: cloudbees-io/checkout@v1
+    - id: package
+      name: Package the Helm chart
+      uses: cloudbees-io/helm-package@v1
+      with:
+        chart: ./charts/example
+        destination: ./chart-output
+    - name: Write docker config.json
+      uses: docker://alpine:3.18
+      run: |
+        mkdir -p $HOME/.docker
+        echo "$DOCKERCONFIGJSON" > $HOME/.docker/config.json
+      env:
+        DOCKERCONFIGJSON: ${{ secrets.dockerconfigjson }}
+    - id: action
+      name: Run Action
+      uses: .
+      with:
+        chart: ${{ steps.package.outputs.chart }}
+        remote: oci://registry.saas-dev.beescloud.com/staging/helm-push-test
+    - name: Verify Action output
+      uses: docker://alpine/helm:3.12.1
+      run: |
+        set -x
+        [ "$CHART" = oci://registry.saas-dev.beescloud.com/staging/helm-push-test/example-chart ]
+        [ "$VERSION" = 0.0.0 ]
+        MANIFEST="$(helm template myrelease $CHART --version=$VERSION)"
+        echo "$MANIFEST" | grep -q "my example data"
+      env:
+        CHART: ${{ steps.action.outputs.chart }}
+        VERSION: ${{ steps.action.outputs.version }}
+
