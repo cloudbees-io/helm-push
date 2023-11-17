@@ -26,7 +26,7 @@ runs:
       name: Publish Helm chart
       uses: docker://alpine/helm:3.12.1
       run: |
-        set -u
+        set -eu
         CHART_NAME="$(helm show chart "$CHART" | grep -E '^name: ' | sed -E 's/^name: //')"
         CHART_VERSION="$(helm show chart "$CHART" | grep -E '^version: ' | sed -E 's/^version: //')"
         printf %s "${REMOTE}/${CHART_NAME}" > $CLOUDBEES_OUTPUTS/chart
