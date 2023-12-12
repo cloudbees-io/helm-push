@@ -32,7 +32,7 @@ jobs:
         chart: ${{ steps.package.outputs.chart }}
         remote: oci://registry.saas-dev.beescloud.com/staging/helm-push-test
     - name: Verify Action output
-      uses: docker://alpine/helm:3.12.1
+      uses: docker://alpine/helm:3.13.2
       run: |
         set -x
         [ "$CHART" = oci://registry.saas-dev.beescloud.com/staging/helm-push-test/example-chart ]
