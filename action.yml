@@ -33,7 +33,7 @@ runs:
         printf %s "${REMOTE}/${CHART_NAME}" > $CLOUDBEES_OUTPUTS/chart
         printf %s "${CHART_VERSION}" > $CLOUDBEES_OUTPUTS/version
         set -x
-        helm push "$CHART" "$REMOTE"
+        helm push "$CHART" "$REMOTE" --debug
       env:
         CHART: ${{ inputs.chart }}
         REMOTE: ${{ inputs.remote }}
