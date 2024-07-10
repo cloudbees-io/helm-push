@@ -24,7 +24,7 @@ runs:
   steps:
     - id: push
       name: Publish Helm chart
-      uses: docker://alpine/helm:3.13.2
+      uses: docker://alpine/helm:3.15.2
       run: |
         set -u
         CHART_NAME="$(helm show chart "$CHART" | grep -E '^name: ' | sed -E 's/^name: //')"
