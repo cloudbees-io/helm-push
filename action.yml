@@ -10,6 +10,11 @@ inputs:
   remote:
     description: Registry to publish the chart to.
     required: true
+  send-artifact-info:
+    default: 'false'
+    description: >
+      If set, fails build if registry-mirrors cannot pull image. If registry-mirrors is empty, this flag is ignored.
+      Type: Boolean
 
 outputs:
   chart:
@@ -36,10 +41,13 @@ runs:
         
         # Make Platform API call
         echo $CHART
+        echo $CHART_VERSION
         echo $REMOTE
+        echo $API_TOKEN
         echo $URL
         echo $RUN_ID
         echo $RUN_ATTEMPT
+
       env:
         CHART: ${{ inputs.chart }}
         REMOTE: ${{ inputs.remote }}
