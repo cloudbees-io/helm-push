@@ -47,4 +47,3 @@ runs:
         URL: ${{ cloudbees.api.url }}
         RUN_ID: ${{ cloudbees.run_id }}
         RUN_ATTEMPT: ${{ cloudbees.run_attempt }}
-        DEBUG: ${{ inputs.debug }}
