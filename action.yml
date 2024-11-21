@@ -35,6 +35,8 @@ runs:
         helm push "$CHART" "$REMOTE"
         
         # Make Platform API call
+        getResponse=$(curl -s GET \"$URL/v2/resources/${{ cloudbees.resource_id }}/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json')
+        echo $getResponse
         response=$(curl -s --max-time 150 --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{\"runId\":\"$RUN_ID\",\"runAttempt\":$RUN_ATTEMPT,\"name\":\"$CHART_NAME\",\"version\":\"$CHART_VERSION\",\"url\":\"$REMOTE\",\"type\":\"helm\"}') || command_failed=1
         # Check curl exit code
         if [ ${command_failed:-0} -eq 1 ];
