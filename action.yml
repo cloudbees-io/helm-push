@@ -36,6 +36,7 @@ runs:
         
         # Make Platform API call
         response=$(curl -s --max-time 150 --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{}') || command_failed=1
+        curl -s -X POST \"$URL/insights/v1/ci.job.info\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{}'
         # Check curl exit code
         if [ ${command_failed:-0} -eq 1 ];
         then
