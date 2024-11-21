@@ -35,22 +35,12 @@ runs:
         helm push "$CHART" "$REMOTE"
         
         # Make Platform API call
-        response=$(curl --fail-with-body  -X 'POST' "$URL/v2/workflows/runs/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary '{"runId":"'"$RUN_ID"'","run_attemp":$RUN_ATTEMPT,"name":"'"$CHART_NAME"'","version":"'"$CHART_VERSION"'","url":"'"$REMOTE"'","type":"helm"}') || command_failed=1
+        response=$(curl --fail-with-body  -X 'POST' "$URL/v2/workflows/runs/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary '{"runId":"'"$RUN_ID"'","runAttempt":"$RUN_ATTEMPT","name":"'"$CHART_NAME"'","version":"'"$CHART_VERSION"'","url":"'"$REMOTE"'","type":"helm"}') || command_failed=1
         # Check curl exit code
         if [ ${command_failed:-0} -eq 1 ];
         then
-          echo "Platform API call failed with error: '$response'"
+          echo "Platform API call failed with error '$response'"
           exit 1
-        fi
-
-        curl -s \"$URL/v2/workflows/2f16f3a5-01f6-4456-bc36-0e192e5c8901/runs/f9cb689a-fea6-46c8-b7d7-9d943e3b89bd/attempts/1/artifactinfos/PUBLISHED/events\" --header \"Authorization: Bearer $API_TOKEN\"
-        
-        # Make Platform API call
-        response=$(curl -s --max-time 150 --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d ') || command_failed=1
-        # Check curl exit code
-        if [ ${command_failed:-0} -eq 1 ];
-        then
-          echo \"Platform API call failed with error '$response'\"
         fi
       env:
         CHART: ${{ inputs.chart }}
