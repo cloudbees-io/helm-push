@@ -40,7 +40,7 @@ runs:
         helm push "$CHART" "$REMOTE"
         
         # Make Platform API call
-        requestJson={"runId":"$RUN_ID","run_attempt":$RUN_ATTEMPT,"name":"$CHART_NAME","version":"$CHART_VERSION","url":"$REMOTE","type":"docker"}
+        requestJson={\"runId\":\"$RUN_ID\",\"run_attemp\":$RUN_ATTEMPT,\"name\":\"$CHART_NAME\",\"version\":\"$CHART_VERSION\",\"url\":\"$REMOTE\",\"type\":\"docker\"}
         echo $requestJson
         response=$(curl -s --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d $requestJson) || command_failed=1
         # Check curl exit code
