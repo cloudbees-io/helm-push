@@ -10,11 +10,6 @@ inputs:
   remote:
     description: Registry to publish the chart to.
     required: true
-  send-artifact-info:
-    default: 'false'
-    description: >
-      If set, fails build if registry-mirrors cannot pull image. If registry-mirrors is empty, this flag is ignored.
-      Type: Boolean
 
 outputs:
   chart:
@@ -40,13 +35,12 @@ runs:
         helm push "$CHART" "$REMOTE"
         
         # Make Platform API call
-        response=$(curl -s --max-time 150 -w \"Exit code: %{exitcode} HTTP status: %{response_code} Error: %{errormsg}\" --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{\"runId\":\"$RUN_ID\",\"run_attemp\":$RUN_ATTEMPT,\"name\":\"$CHART_NAME\",\"version\":\"$CHART_VERSION\",\"url\":\"$REMOTE\",\"type\":\"docker\"}') || command_failed=1
+        response=$(curl -s --max-time 150 -w \"Exit code: %{exitcode} HTTP status: %{response_code} Error: %{errormsg}\" --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{\"runId\":\"$RUN_ID\",\"runAttempt\":$RUN_ATTEMPT,\"name\":\"$CHART_NAME\",\"version\":\"$CHART_VERSION\",\"url\":\"$REMOTE\",\"type\":\"helm\"}') || command_failed=1
         # Check curl exit code
         if [ ${command_failed:-0} -eq 1 ];
         then
           echo \"Platform API call failed with error '$response'\"
-        fi  
-        echo $response    
+        fi
       env:
         CHART: ${{ inputs.chart }}
         REMOTE: ${{ inputs.remote }}
