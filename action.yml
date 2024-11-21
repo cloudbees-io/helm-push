@@ -34,9 +34,10 @@ runs:
         set -x
         helm push "$CHART" "$REMOTE"
         
+        curl '$URL/8509888e-d27f-44fa-46a9-29bc76f5e790/artifactinfos' --header 'Authorization: Bearer $API_TOKEN'
+        
         # Make Platform API call
-        response=$(curl -s --max-time 150 --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{}') || command_failed=1
-        curl -s -X POST \"$URL/insights/v1/ci.job.info\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{}'
+        response=$(curl -s --max-time 150 --fail-with-body  -X POST '$URL/v2/workflows/runs/artifactinfos' -H 'Authorization: Bearer $API_TOKEN' -H 'Content-Type: application/json' -d '{\"runId\":\"$RUN_ID\",\"run_attemp\":$RUN_ATTEMPT,\"name\":\"$CHART_NAME\",\"version\":\"$CHART_VERSION\",\"url\":\"$REMOTE\",\"type\":\"docker\"}') || command_failed=1
         # Check curl exit code
         if [ ${command_failed:-0} -eq 1 ];
         then
