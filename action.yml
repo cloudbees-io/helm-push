@@ -35,9 +35,7 @@ runs:
         helm push "$CHART" "$REMOTE"
         
         # Make Platform API call
-        getResponse=$(curl -s \"$URL/v2/resources/8509888e-d27f-44fa-46a9-29bc76f5e790/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json')
-        echo $getResponse
-        response=$(curl -s --max-time 150 --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{\"runId\":\"$RUN_ID\",\"runAttempt\":$RUN_ATTEMPT,\"name\":\"$CHART_NAME\",\"version\":\"$CHART_VERSION\",\"url\":\"$REMOTE\",\"type\":\"helm\"}') || command_failed=1
+        response=$(curl -s --max-time 150 --fail-with-body  -X POST \"$URL/v2/workflows/runs/artifactinfos\" -H \"Authorization: Bearer $API_TOKEN\" -H 'Content-Type: application/json' -d '{}') || command_failed=1
         # Check curl exit code
         if [ ${command_failed:-0} -eq 1 ];
         then
