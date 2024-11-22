@@ -47,3 +47,7 @@ runs:
       env:
         CHART: ${{ inputs.chart }}
         REMOTE: ${{ inputs.remote }}
+        API_TOKEN: ${{ cloudbees.api.token }}
+        URL: ${{ cloudbees.api.url }}
+        RUN_ID: ${{ cloudbees.run_id }}
+        RUN_ATTEMPT: ${{ cloudbees.run_attempt }}
