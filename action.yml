@@ -33,6 +33,17 @@ runs:
         printf %s "${CHART_VERSION}" > $CLOUDBEES_OUTPUTS/version
         set -x
         helm push "$CHART" "$REMOTE"
+        echo $CHART
+        # Make Platform API call
+        response=$(curl --fail-with-body  -X 'POST' "$URL/v2/workflows/runs/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary '{"runId":"'"$RUN_ID"'","runAttempt":'$RUN_ATTEMPT',"name":"'"$CHART_NAME"'","version":"'"$CHART_VERSION"'","url":"'"$REMOTE"'","type":"helm"}') || command_failed=1
+        # Check curl exit code
+        if [ ${command_failed:-0} -eq 1 ];
+        then
+          echo "Platform API call failed with error '$response'"
+          exit 1
+        else
+          echo "Artifact details pushed to platform successfully"
+        fi 
       env:
         CHART: ${{ inputs.chart }}
         REMOTE: ${{ inputs.remote }}
