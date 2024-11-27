@@ -32,7 +32,7 @@ jobs:
       uses: cloudbees-io/configure-ecr-credentials@v1
     - id: action
       name: Run Action
-      uses: .
+      uses: cloudbees-io/helm-push@v1
       with:
         chart: ${{ steps.package.outputs.chart }}
         remote: oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push
