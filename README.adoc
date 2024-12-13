@@ -1,6 +1,6 @@
 = CloudBees action: Push a Helm chart
 
-Use this action to upload, or publish, a packaged Helm chart into a repository.
+Use this action to upload, or publish, a packaged Helm chart into a repository. This action also reports artifact related data to the workflow run for artifact traceability purposes.
 
 == Inputs
 
