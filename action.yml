@@ -51,7 +51,7 @@ runs:
             fi
         else
             echo "Failed to push the chart."
-            echo "Error: $output"
+            echo "Error: $helm_push_output"
             exit 1
         fi  
       env:
