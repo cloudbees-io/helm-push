@@ -35,6 +35,7 @@ runs:
         helm_push_output=$(helm push "$CHART" "$REMOTE")
         if [[ $? -eq 0 ]]; then
             echo "Chart pushed successfully!"
+            echo $helm_push_output
             # Extract the digest
             digest=$(echo "$helm_push_output" | grep -i 'Digest' | awk '{print $2}')
             echo "Digest: $digest"
