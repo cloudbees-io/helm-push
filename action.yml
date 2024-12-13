@@ -45,7 +45,6 @@ runs:
             if [ ${command_failed:-0} -eq 1 ];
             then
               echo "Platform API call failed with error '$response'"
-              exit 1
             else
               echo "Artifact details pushed to platform successfully"
             fi
