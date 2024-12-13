@@ -32,17 +32,26 @@ runs:
         printf %s "${REMOTE}/${CHART_NAME}" > $CLOUDBEES_OUTPUTS/chart
         printf %s "${CHART_VERSION}" > $CLOUDBEES_OUTPUTS/version
         set -x
-        helm push "$CHART" "$REMOTE"
-        
-        # Publish build artifact
-        response=$(curl --fail-with-body  -X 'POST' "$URL/v2/workflows/runs/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary '{"runId":"'"$RUN_ID"'","runAttempt":'$RUN_ATTEMPT',"name":"'"$CHART_NAME"'","version":"'"$CHART_VERSION"'","url":"'"$REMOTE"/"$CHART_NAME":"$CHART_VERSION"'","type":"helm"}') || command_failed=1
-        # Check curl exit code
-        if [ ${command_failed:-0} -eq 1 ];
-        then
-          echo "Platform API call failed with error '$response'"
-          exit 1
+        helm_push_output=$(helm push "$CHART" "$REMOTE" 2>&1)
+        if [ $? -eq 0 ]; then
+            echo "Chart pushed successfully!"
+            echo $helm_push_output
+            # Extract the digest
+            digest=$(echo "$helm_push_output" | grep -i 'Digest' | awk '{print $2}')
+            echo "Digest: $digest"
+            # Publish build artifact
+            response=$(curl --fail-with-body  -X 'POST' "$URL/v2/workflows/runs/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary '{"runId":"'"$RUN_ID"'","runAttempt":'$RUN_ATTEMPT',"name":"'"$CHART_NAME"'","version":"'"$CHART_VERSION"'","url":"'"$REMOTE"/"$CHART_NAME":"$CHART_VERSION"'","type":"helm","digest":"'$digest'"}') || command_failed=1
+            # Check curl exit code
+            if [ ${command_failed:-0} -eq 1 ];
+            then
+              echo "WARN: Platform API call failed with error '$response'"
+            else
+              echo "Artifact details pushed to platform successfully"
+            fi
         else
-          echo "Artifact details pushed to platform successfully"
+            echo "Failed to push the chart."
+            echo "Error: $helm_push_output"
+            exit 1
         fi  
       env:
         CHART: ${{ inputs.chart }}
