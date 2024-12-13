@@ -29,7 +29,7 @@ runs:
         set -x
         CHART_NAME="$(helm show chart "$CHART" | grep -E '^name: ' | sed -E 's/^name: //')"
         CHART_VERSION="$(helm show chart "$CHART" | grep -E '^version: ' | sed -E 's/^version: //')"
-        CHART_DIGEST="$(helm show chart "$CHART" | grep -E '^digest: ' | sed -E 's/^version: //')"
+        CHART_DIGEST="$(helm show chart "$CHART" | grep -E '^digest: ' | sed -E 's/^digest: //')"
         echo $CHART_DIGEST
         printf %s "${REMOTE}/${CHART_NAME}" > $CLOUDBEES_OUTPUTS/chart
         printf %s "${CHART_VERSION}" > $CLOUDBEES_OUTPUTS/version
