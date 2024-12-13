@@ -33,7 +33,7 @@ runs:
         printf %s "${CHART_VERSION}" > $CLOUDBEES_OUTPUTS/version
         set -x
         helm_push_output=$(helm push "$CHART" "$REMOT" 2>&1)
-        if [[ $? -eq 0 ]]; then
+        if [ $? -eq 0 ]; then
             echo "Chart pushed successfully!"
             echo $helm_push_output
             # Extract the digest
