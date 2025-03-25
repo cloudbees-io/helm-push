@@ -19,7 +19,7 @@ jobs:
       name: Package the Helm chart
       uses: cloudbees-io/helm-package@v1
       with:
-        chart: ./charts/example
+        chart: ./charts/test-chart
         destination: ./chart-output
     - name: Login to AWS
       uses: https://github.com/cloudbees-io/configure-aws-credentials@v1
