@@ -3,7 +3,7 @@
 Use this action to upload, or publish, a packaged Helm chart into a repository. This action also reports artifact related data to the workflow run for artifact traceability purposes.
 
 == Inputs
-
+ 
 [cols="2a,1a,1a,3a",options="header"]
 .Input details
 |===
