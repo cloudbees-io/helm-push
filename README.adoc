@@ -43,6 +43,8 @@ Use this action to upload, or publish, a packaged Helm chart into a repository. 
 | String
 | The version of the uploaded Helm chart package.
 
+|===
+
 == Usage examples
 
 Use the link: to package a Helm chart, and this action to publish it.
