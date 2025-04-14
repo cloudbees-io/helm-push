@@ -1,6 +1,6 @@
 = CloudBees action: Push a Helm chart
 
-Use this action to upload, or publish, a packaged Helm chart into a repository. This action also reports artifact related data to the workflow run for artifact traceability purposes.
+Use this action to upload, or publish, a packaged Helm chart into a repository. This action also reports artifact-related data to the workflow run for artifact traceability purposes.
 
 == Inputs
 
@@ -25,9 +25,29 @@ Use this action to upload, or publish, a packaged Helm chart into a repository. 
 
 |===
 
-== Usage example
+== Outputs
 
-In your YAML file, add:
+[cols="2a,1a,3a",options="header"]
+.Output details
+|===
+
+| Input name
+| Data type
+| Description
+
+| `chart`
+| String
+| The image reference pointing to the chart upload location.
+
+| `version`
+| String
+| The version of the uploaded Helm chart package.
+
+== Usage examples
+
+Use the link: to package a Helm chart, and this action to publish it.
+
+=== Basic example
 
 [source,yaml]
 ----
@@ -47,7 +67,73 @@ In your YAML file, add:
 
 ----
 
-For more information, refer to link:https://github.com/cloudbees-io/helm-package[CloudBees action: Package a Helm chart].
+=== Full workflow and run example
+
+The following workflow example uses this action to publish a Helm chart and then verify the output.
+
+.Example workflow YAML file
+[.collapsible]
+--
+
+[source, yaml,role="default-expanded"]
+----
+
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: workflow
+name: test
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    permissions:
+      scm-token-own: read
+      id-token: write
+    steps:
+    - name: Get source code
+      uses: cloudbees-io/checkout@v1
+    - id: package
+      name: Package the Helm chart
+      uses: cloudbees-io/helm-package@v1
+      with:
+        chart: ./charts/example
+        destination: ./chart-output
+    - name: Login to AWS
+      uses: https://github.com/cloudbees-io/configure-aws-credentials@v1
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.oidc_staging_iam_role }}
+        role-duration-seconds: "3600"
+    - id: ecrconfig
+      name: Configure container registry for staging ECR
+      uses: cloudbees-io/configure-ecr-credentials@v1
+    - id: action
+      name: Publish Helm chart
+      uses: cloudbees-io/helm-push@v1
+      with:
+        chart: ${{ steps.package.outputs.chart }}
+        remote: oci://123456789012.dkr.ecr.us-east-1.amazonaws.com/for-testing
+    - name: Verify the output
+      uses: docker://alpine/helm:3.12.1
+      run: |
+        set -x
+        [ "$CHART" = oci://123456789012.dkr.ecr.us-east-1.amazonaws.com/for-testing/example-chart ]
+        [ "$VERSION" = 3.2.1 ]
+        MANIFEST="$(helm template myrelease $CHART --version=$VERSION)"
+        echo "$MANIFEST" | grep -q "my example data"
+      env:
+        CHART: ${{ steps.action.outputs.chart }}
+        VERSION: ${{ steps.action.outputs.version }}
+
+----
+--
+
+After the run has completed, the artifact version and chart reference output are displayed in both menu:Components[Artifacts] and menu:Run details[Build artifacts] in the CloudBees platform.
+
+Refer to link:https://docs.cloudbees.com/docs/cloudbees-platform/latest/workflows/build-artifacts[] for more information.
 
 == License
 
@@ -56,5 +142,5 @@ link:https://opensource.org/license/mit/[MIT license].
 
 == References
 
-* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform-actions/latest/[using actions in CloudBees workflows].
-* Learn about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/[the CloudBees platform].
+* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-platform/latest/actions[using actions in CloudBees workflows].
+* Learn about link:https://docs.cloudbees.com/docs/cloudbees-platform/latest/[the CloudBees platform].
