@@ -97,11 +97,13 @@ jobs:
     steps:
     - name: Get source code
       uses: cloudbees-io/checkout@v1
+      with:
+        repository: my-name/my-repo-name
     - id: package
       name: Package the Helm chart
       uses: cloudbees-io/helm-package@v1
       with:
-        chart: ./charts/example
+        chart: my-name/my-repo-name/charts/example
         destination: ./chart-output
     - name: Login to AWS
       uses: https://github.com/cloudbees-io/configure-aws-credentials@v1
