@@ -47,24 +47,17 @@ Use this action to upload, or publish, a packaged Helm chart into a repository. 
 
 == Usage examples
 
-Use the link: to package a Helm chart, and this action to publish it.
+The following is a basic example of using this action:
 
 === Basic example
 
 [source,yaml]
 ----
-    - id: helmpkg
-      name: Package Helm chart
-      uses: cloudbees-io/helm-package@v1
-      with:
-        chart: ./charts/example
-        destination: ./packaged-charts
-        version: "0.0.1"
 
-    - name: Push Helm chart
+- name: Push Helm chart
       uses: cloudbees-io/helm-push@v1
       with:
-        chart: ${{ steps.helmpkg.outputs.chart }}
+        chart: ./charts/example
         remote: oci://registry.example.com/example
 
 ----
