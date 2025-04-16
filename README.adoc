@@ -47,9 +47,11 @@ Use this action to upload, or publish, a packaged Helm chart into a repository. 
 
 == Usage examples
 
-The following is a basic example of using this action:
+Use the link:https://github.com/cloudbees-io/helm-package[Helm package action] to package a Helm chart, and this action to publish it.
 
 === Basic example
+
+The following is a basic example of using this action:
 
 [source,yaml]
 ----
@@ -64,7 +66,7 @@ The following is a basic example of using this action:
 
 === Full workflow and run example
 
-The following workflow example uses this action to publish a Helm chart and then verify the output.
+The following workflow example packages and publishes a Helm chart, then verifies the output.
 
 .Example workflow YAML file
 [.collapsible]
@@ -128,9 +130,9 @@ jobs:
 ----
 --
 
-After the run has completed, the artifact version and chart reference output are displayed in both menu:Components[Artifacts] and menu:Run details[Build artifacts] in the CloudBees platform.
+After the run has completed, the artifact version and chart reference output are displayed in both *Artifacts* and *Run details > Build artifacts* in the CloudBees platform.
 
-Refer to link:https://docs.cloudbees.com/docs/cloudbees-platform/latest/workflows/build-artifacts[] for more information.
+Refer to the link:https://docs.cloudbees.com/docs/cloudbees-platform/latest/workflows/build-artifacts[artifact documentation] for more information.
 
 == License
 
