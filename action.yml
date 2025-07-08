@@ -18,6 +18,9 @@ outputs:
   version:
     description: Version of the uploaded chart.
     value: ${{ steps.push.outputs.version }}
+  artifact-id:
+    description: The unique identifier of the artifact.
+    value: ${{ steps.push.outputs.artifact-id }}
 
 runs:
   using: composite
@@ -47,6 +50,12 @@ runs:
               echo "WARN: Platform API call failed with error '$response'"
             else
               echo "Artifact details pushed to platform successfully"
+        
+              # Extract the artifactId
+              id=$(echo "$response" | grep -o '"id": *"[^"]*"' | sed 's/.*"id": *"\([^"]*\)".*/\1/')
+            
+              # Set it as an output
+              printf %s "$id" > $CLOUDBEES_OUTPUTS/artifact-id
             fi
         else
             echo "Failed to push the chart."
