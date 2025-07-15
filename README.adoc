@@ -35,6 +35,10 @@ Use this action to upload, or publish, a packaged Helm chart into a repository. 
 | Data type
 | Description
 
+| `artifact-id`
+| String
+| The unique identifier of the artifact reported to the CloudBees platform.
+
 | `chart`
 | String
 | The image reference pointing to the chart upload location.
@@ -42,11 +46,6 @@ Use this action to upload, or publish, a packaged Helm chart into a repository. 
 | `version`
 | String
 | The version of the uploaded Helm chart package.
-
-| `artifact-id`
-| String
-| The unique identifier of the artifact.
-
 
 |===
 
@@ -83,12 +82,10 @@ The following workflow example packages and publishes a Helm chart to an AWS ECR
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: test
-
 on:
   push:
     branches:
       - '**'
-
 jobs:
   test:
     permissions:
@@ -99,8 +96,8 @@ jobs:
       uses: cloudbees-io/checkout@v1
       with:
         repository: my-name/my-repo-name
-    - id: package
-      name: Package the Helm chart
+    - name: Package the Helm chart
+      id: package
       uses: cloudbees-io/helm-package@v1
       with:
         chart: my-name/my-repo-name/charts/example
@@ -111,11 +108,11 @@ jobs:
         aws-region: us-east-1
         role-to-assume: ${{ vars.oidc_staging_iam_role }}
         role-duration-seconds: "3600"
-    - id: ecrconfig
-      name: Configure container registry for staging ECR
+    - name: Configure container registry for staging ECR
+      id: ecrconfig
       uses: cloudbees-io/configure-ecr-credentials@v1
-    - id: action
-      name: Publish Helm chart
+    - name: Push Helm chart
+      id: push-chart
       uses: cloudbees-io/helm-push@v1
       with:
         chart: ${{ steps.package.outputs.chart }}
@@ -128,9 +125,10 @@ jobs:
         [ "$VERSION" = 3.2.1 ]
         MANIFEST="$(helm template myrelease $CHART --version=$VERSION)"
         echo "$MANIFEST" | grep -q "my example data"
+        echo "The artifact ID for $CHART:$VERSION is ${{ steps.push-chart.outputs.artifact-id }}"
       env:
-        CHART: ${{ steps.action.outputs.chart }}
-        VERSION: ${{ steps.action.outputs.version }}
+        CHART: ${{ steps.push-chart.outputs.chart }}
+        VERSION: ${{ steps.push-chart.outputs.version }}
 
 ----
 --
