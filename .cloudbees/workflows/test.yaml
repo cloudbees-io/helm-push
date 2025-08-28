@@ -36,8 +36,6 @@ jobs:
       with:
         chart: ${{ steps.package.outputs.chart }}
         remote: oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push
-        commit: ""
-
     - name: Verify Action output
       uses: docker://alpine/helm:3.12.1
       run: |
