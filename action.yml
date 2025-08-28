@@ -10,6 +10,19 @@ inputs:
   remote:
     description: Registry to publish the chart to.
     required: true
+  commit:
+    description: >
+      The commit ID from the source repository, used when registering the build artifact in CloudBees platform.
+    default: ${{ cloudbees.scm.sha }}
+  repository-url:
+    description: >
+      The clone URL of the source repository, used when registering the build artifact in CloudBees platform.
+    default: ${{ cloudbees.scm.repositoryUrl }}
+  ref:
+    description: >
+      The ref or branch of the source repository, used when registering the build artifact in CloudBees platform.
+    default: ${{ cloudbees.scm.ref }}
+
 
 outputs:
   chart:
@@ -42,8 +55,25 @@ runs:
             # Extract the digest
             digest=$(echo "$helm_push_output" | grep -i 'Digest' | awk '{print $2}')
             echo "Digest: $digest"
+            commit="${{ inputs.commit }}"
+            repository_url="${{ inputs.repository-url }}"
+            ref="${{ inputs.ref }}"
             # Publish build artifact
-            response=$(curl --fail-with-body  -X 'POST' "$URL/v3/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary '{"runId":"'"$RUN_ID"'","runAttempt":'$RUN_ATTEMPT',"name":"'"$CHART_NAME"'","version":"'"$CHART_VERSION"'","url":"'"$REMOTE"/"$CHART_NAME":"$CHART_VERSION"'","type":"helm","digest":"'$digest'"}') || command_failed=1
+            json_payload='{
+              "runId": "'"$RUN_ID"'",
+              "runAttempt": '"$RUN_ATTEMPT"',
+              "name": "'"$CHART_NAME"'",
+              "version": "'"$CHART_VERSION"'",
+              "url": "'"$REMOTE"/"$CHART_NAME":"$CHART_VERSION"'",
+              "type": "helm",
+              "digest":"'$digest'",
+              "commit": {
+                "repositoryUrl": "'"$repository_url"'",
+                "commitId": "'"$commit"'",
+                "ref": "'"$ref"'"
+              }
+            }'        
+            response=$(curl --fail-with-body  -X 'POST' "$URL/v3/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary "$json_payload") || command_failed=1
             # Check curl exit code
             if [ ${command_failed:-0} -eq 1 ];
             then
