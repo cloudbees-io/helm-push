@@ -36,6 +36,10 @@ jobs:
       with:
         chart: ${{ steps.package.outputs.chart }}
         remote: oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push
+        commit: 5c1345935f260ba0f4ce71456c738c655ff7617c
+        repository-url: https://github.com/cloudbees-io/kaniko
+        ref: main
+
     - name: Verify Action output
       uses: docker://alpine/helm:3.12.1
       run: |
@@ -47,3 +51,4 @@ jobs:
       env:
         CHART: ${{ steps.action.outputs.chart }}
         VERSION: ${{ steps.action.outputs.version }}
+ 
