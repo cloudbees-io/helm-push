@@ -29,6 +29,24 @@ Do not include the link:https://github.com/cloudbees-io/register-build-artifact[
 | Yes
 | The URL of the published Helm chart package.
 
+| `commit`
+| String
+| No
+| The commit ID from the source repository, used when registering the build artifact in CloudBees platform.
+Default is `${{ cloudbees.scm.sha }}`.
+
+| `repository-url`
+| String
+| No
+| The clone URL of the source repository, used when registering the build artifact in CloudBees platform.
+Default is `${{ cloudbees.scm.repositoryUrl }}`.
+
+| `ref`
+| String
+| No
+| The ref or branch of the source repository, used when registering the build artifact in CloudBees platform.
+Default is `${{ cloudbees.scm.ref }}`.
+
 |===
 
 == Outputs
