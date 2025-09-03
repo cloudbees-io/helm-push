@@ -73,11 +73,12 @@ runs:
                 "ref": "'"$ref"'"
               }
             }'        
-            response=$(curl --fail-with-body  -X 'POST' "$URL/v3/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary "$json_payload") || command_failed=1
+            response=$(curl --retry-delay 5 --retry 3 --retry-connrefused --fail-with-body  -X 'POST' "$URL/v3/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary "$json_payload") || command_failed=1
             # Check curl exit code
             if [ ${command_failed:-0} -eq 1 ];
             then
-              echo "WARN: Platform API call failed with error '$response'"
+              echo "ERROR: failed to save artifact information: '$response'"
+              exit 1
             else
               echo "Artifact details pushed to platform successfully"
         
