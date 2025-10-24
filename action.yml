@@ -83,7 +83,7 @@ runs:
                 "repositoryUrl": "'"$repository_url"'",
                 "commitId": "'"$commit"'",
                 "ref": "'"$ref"'"
-              }
+              },
               "componentId": "'"$COMPONENT_ID"'"
             }'        
             response=$(curl --retry-delay 5 --retry 3 --retry-connrefused --fail-with-body  -X 'POST' "$URL/v3/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary "$json_payload") || command_failed=1
