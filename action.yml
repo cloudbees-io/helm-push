@@ -22,6 +22,15 @@ inputs:
     description: >
       The ref or branch of the source repository, used when registering the build artifact in CloudBees platform.
     default: ${{ cloudbees.scm.ref }}
+  artifact-name:
+    description: >
+      The name of the artifact, used when registering the build artifact in CloudBees Unify.
+      If not provided, the artifact name defaults to the name of the chart.
+    required: false
+  component-id:
+    description: >
+      The ID of the component associated with the artifact. If not provided, the artifact is registered with the component of the current workflow run.
+    required: false
 
 
 outputs:
@@ -43,7 +52,10 @@ runs:
       uses: docker://alpine/helm:3.18.6
       run: |
         set -u
-        CHART_NAME="$(helm show chart "$CHART" | grep -E '^name: ' | sed -E 's/^name: //')"
+        CHART_NAME="${ARTIFACT_NAME}"
+        if [ -z "$CHART_NAME" ]; then
+          CHART_NAME="$(helm show chart "$CHART" | grep -E '^name: ' | sed -E 's/^name: //')"
+        fi
         CHART_VERSION="$(helm show chart "$CHART" | grep -E '^version: ' | sed -E 's/^version: //')"
         printf %s "${REMOTE}/${CHART_NAME}" > $CLOUDBEES_OUTPUTS/chart
         printf %s "${CHART_VERSION}" > $CLOUDBEES_OUTPUTS/version
@@ -71,7 +83,8 @@ runs:
                 "repositoryUrl": "'"$repository_url"'",
                 "commitId": "'"$commit"'",
                 "ref": "'"$ref"'"
-              }
+              },
+              "componentId": "'"$COMPONENT_ID"'"
             }'        
             response=$(curl --retry-delay 5 --retry 3 --retry-connrefused --fail-with-body  -X 'POST' "$URL/v3/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary "$json_payload") || command_failed=1
             # Check curl exit code
@@ -92,7 +105,7 @@ runs:
             echo "Failed to push the chart."
             echo "Error: $helm_push_output"
             exit 1
-        fi  
+        fi
       env:
         CHART: ${{ inputs.chart }}
         REMOTE: ${{ inputs.remote }}
@@ -100,3 +113,5 @@ runs:
         URL: ${{ cloudbees.api.url }}
         RUN_ID: ${{ cloudbees.run_id }}
         RUN_ATTEMPT: ${{ cloudbees.run_attempt }}
+        ARTIFACT_NAME: ${{ inputs.artifact-name }}
+        COMPONENT_ID: ${{ inputs.component-id }}
