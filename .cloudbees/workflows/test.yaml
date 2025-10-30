@@ -34,6 +34,7 @@ jobs:
           remote: oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push
           artifact-name: 22766-test
           #component-id: 740c0efe-6eae-4fd7-b46e-ba34762341f2
+          component-id: 02ad523f-b3f6-4c04-ab0c-af8d4307bd1e #component id of yaeltest
       - name: Verify Action output
         uses: docker://alpine/helm:3.18.6
         run: |
