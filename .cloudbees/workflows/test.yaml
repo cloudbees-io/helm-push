@@ -13,7 +13,7 @@ jobs:
         uses: cloudbees-io/checkout@v1
       - id: package
         name: Package the Helm chart
-        uses: cloudbees-io/helm-package@CBP-27023
+        uses: cloudbees-io/helm-package@v1
         with:
           chart: ./charts/example
           destination: ./chart-output
