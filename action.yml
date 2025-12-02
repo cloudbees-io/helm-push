@@ -60,6 +60,7 @@ runs:
         CHART_VERSION="$(helm show chart "$CHART" | grep -E '^version: ' | sed -E 's/^version: //')"
         printf %s "${REMOTE}/${CHART_NAME}" > $CLOUDBEES_OUTPUTS/chart
         printf %s "${CHART_VERSION}" > $CLOUDBEES_OUTPUTS/version
+        printf %s "${CHART_NAME}" > $CLOUDBEES_OUTPUTS/chart-name
         set -x
         helm_push_output=$(helm push "$CHART" "$REMOTE" 2>&1)
         if [ $? -eq 0 ]; then
@@ -68,40 +69,7 @@ runs:
             # Extract the digest
             digest=$(echo "$helm_push_output" | grep -i 'Digest' | awk '{print $2}')
             echo "Digest: $digest"
-            commit="${{ inputs.commit }}"
-            repository_url="${{ inputs.repository-url }}"
-            ref="${{ inputs.ref }}"
-            # Publish build artifact
-            json_payload='{
-              "runId": "'"$RUN_ID"'",
-              "runAttempt": '"$RUN_ATTEMPT"',
-              "name": "'"$CHART_NAME"'",
-              "version": "'"$CHART_VERSION"'",
-              "url": "'"$REMOTE"/"$CHART_NAME":"$CHART_VERSION"'",
-              "type": "helm",
-              "digest":"'$digest'",
-              "commit": {
-                "repositoryUrl": "'"$repository_url"'",
-                "commitId": "'"$commit"'",
-                "ref": "'"$ref"'"
-              },
-              "componentId": "'"$COMPONENT_ID"'"
-            }'        
-            response=$(curl --retry-delay 5 --retry 3 --retry-connrefused --fail-with-body  -X 'POST' "$URL/v3/artifactinfos" -H "Authorization: Bearer $API_TOKEN" -H 'Content-Type: application/json' --data-binary "$json_payload") || command_failed=1
-            # Check curl exit code
-            if [ ${command_failed:-0} -eq 1 ];
-            then
-              echo "ERROR: failed to save artifact information: '$response'"
-              exit 1
-            else
-              echo "Artifact details pushed to platform successfully"
-        
-              # Extract the artifactId
-              id=$(echo "$response" | grep -o '"id": *"[^"]*"' | sed 's/.*"id": *"\([^"]*\)".*/\1/')
-            
-              # Set it as an output
-              printf %s "$id" > $CLOUDBEES_OUTPUTS/artifact-id
-            fi
+            printf %s "${digest}" > $CLOUDBEES_OUTPUTS/digest
         else
             echo "Failed to push the chart."
             echo "Error: $helm_push_output"
@@ -116,3 +84,21 @@ runs:
         RUN_ATTEMPT: ${{ cloudbees.run_attempt }}
         ARTIFACT_NAME: ${{ inputs.artifact-name }}
         COMPONENT_ID: ${{ inputs.component-id }}
+    - id: registerBuildArtifact
+      name: Register Build Artifact
+      if: ${{ steps.push.outputs.digest != '' }}
+      uses: cloudbees/actions/register-build-artifact@v2
+      with:
+        name: ${{ steps.push.outputs.chart-name }}
+        url: ${{ steps.push.outputs.chart }}:${{ steps.push.outputs.version }}
+        version: ${{ steps.push.outputs.version }}
+        commit: ${{ inputs.commit }}
+        ref: ${{ inputs.ref }}
+        repository-url: ${{ inputs.repository-url }}
+        digest: ${{ steps.push.outputs.temp.digest }}
+        component-id: ${{ inputs.component-id }}
+      env:
+        API_TOKEN: ${{ cloudbees.api.token }}
+        URL: ${{ cloudbees.api.url }}
+        RUN_ID: ${{ cloudbees.run_id }}
+        RUN_ATTEMPT: ${{ cloudbees.run_attempt }}
