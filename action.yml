@@ -43,7 +43,7 @@ outputs:
     value: ${{ steps.push.outputs.version }}
   artifact-id:
     description: The unique identifier of the artifact.
-    value: ${{ steps.push.outputs.artifact-id }}
+    value: ${{ steps.registerArtifact.outputs.artifact-id }}
 
 runs:
   using: composite
@@ -79,7 +79,7 @@ runs:
         CHART: ${{ inputs.chart }}
         REMOTE: ${{ inputs.remote }}
         ARTIFACT_NAME: ${{ inputs.artifact-name }}
-    - id: registerBuildArtifact
+    - id: registerArtifact
       name: Register Build Artifact
       if: ${{ steps.push.outputs.digest != '' }}
       uses: cloudbees-io/register-build-artifact@v2
