@@ -90,5 +90,5 @@ runs:
         commit: ${{ inputs.commit }}
         ref: ${{ inputs.ref }}
         repository-url: ${{ inputs.repository-url }}
-        digest: ${{ steps.push.outputs.temp.digest }}
+        digest: ${{ steps.push.outputs.digest }}
         component-id: ${{ inputs.component-id }}
