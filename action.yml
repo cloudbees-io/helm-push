@@ -82,7 +82,7 @@ runs:
     - id: registerBuildArtifact
       name: Register Build Artifact
       if: ${{ steps.push.outputs.digest != '' }}
-      uses: cloudbees/actions/register-build-artifact@v2
+      uses: cloudbees-io/register-build-artifact@v2
       with:
         name: ${{ steps.push.outputs.chart-name }}
         url: ${{ steps.push.outputs.chart }}:${{ steps.push.outputs.version }}
