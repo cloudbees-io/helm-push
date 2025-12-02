@@ -1,49 +1,49 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: test
-
 on:
-  push:
-    branches:
-      - '**'
-
+  workflow_dispatch:
 jobs:
   test:
     permissions:
       scm-token-own: read
       id-token: write
     steps:
-    - name: Get source code
-      uses: cloudbees-io/checkout@v1
-    - id: package
-      name: Package the Helm chart
-      uses: cloudbees-io/helm-package@v1
-      with:
-        chart: ./charts/example
-        destination: ./chart-output
-    - name: Login to AWS
-      uses: https://github.com/cloudbees-io/configure-aws-credentials@v1
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.oidc_staging_iam_role }}
-        role-duration-seconds: "3600"
-    - id: ecrconfig
-      name: Configure container registry for staging ECR
-      uses: cloudbees-io/configure-ecr-credentials@v1
-    - id: action
-      name: Run Action
-      uses: .
-      with:
-        chart: ${{ steps.package.outputs.chart }}
-        remote: oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push
-    - name: Verify Action output
-      uses: docker://alpine/helm:3.18.6
-      run: |
-        set -x
-        [ "$CHART" = oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push/example-chart ]
-        [ "$VERSION" = 0.0.0 ]
-        MANIFEST="$(helm template myrelease $CHART --version=$VERSION)"
-        echo "$MANIFEST" | grep -q "my example data"
-      env:
-        CHART: ${{ steps.action.outputs.chart }}
-        VERSION: ${{ steps.action.outputs.version }}
+      - name: Get source code
+        uses: cloudbees-io/checkout@v1
+      - id: package
+        name: Package the Helm chart
+        uses: cloudbees-io/helm-package@v1
+        with:
+          chart: ./charts/example
+          destination: ./chart-output
+      - name: Login to AWS
+        uses: https://github.com/cloudbees-io/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ vars.oidc_staging_iam_role }}
+          role-duration-seconds: "3600"
+      - id: ecrconfig
+        name: Configure container registry for staging ECR
+        uses: cloudbees-io/configure-ecr-credentials@v1
+      - id: action
+        name: Run Action
+        uses: .
+        with:
+          chart: ${{ steps.package.outputs.chart }}
+          remote: oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push
+          artifact-name: 27023-test
+          #component-id: 740c0efe-6eae-4fd7-b46e-ba34762341f2
+          component-id: 02ad523f-b3f6-4c04-ab0c-af8d4307bd1e 
+      - name: Verify Action output
+        uses: docker://alpine/helm:3.18.6
+        run: |
+          set -x
+          [ "$CHART" = oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push/example-chart ]
+          [ "$VERSION" = 0.0.0 ]
+          MANIFEST="$(helm template myrelease $CHART --version=$VERSION)"
+          echo "$MANIFEST" | grep -q "my example data"
+          echo "artifactId: ${{ steps.action.outputs.artifact-id }}"
+        env:
+          CHART: ${{ steps.action.outputs.chart }}
+          VERSION: ${{ steps.action.outputs.version }}
