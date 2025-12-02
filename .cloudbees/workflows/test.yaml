@@ -3,7 +3,10 @@ kind: workflow
 name: test
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+
 jobs:
   test:
     permissions:
