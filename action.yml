@@ -43,7 +43,7 @@ outputs:
     value: ${{ steps.push.outputs.version }}
   artifact-id:
     description: The unique identifier of the artifact.
-    value: ${{ steps.registerArtifact.outputs.artifact-id }}
+    value: ${{ steps.register-artifact.outputs.artifact-id }}
 
 runs:
   using: composite
