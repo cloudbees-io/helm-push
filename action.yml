@@ -66,6 +66,7 @@ runs:
         if [ $? -eq 0 ]; then
             echo "Chart pushed successfully!"
             echo $helm_push_output
+             printf %s "${helm_push_output}" > $CLOUDBEES_OUTPUTS/helm_push_output
             # Extract the digest
             digest=$(echo "$helm_push_output" | grep -i 'Digest' | awk '{print $2}')
             echo "Digest: $digest"
@@ -79,9 +80,9 @@ runs:
         CHART: ${{ inputs.chart }}
         REMOTE: ${{ inputs.remote }}
         ARTIFACT_NAME: ${{ inputs.artifact-name }}
-    - id: registerArtifact
+    - id: register-artifact
       name: Register Build Artifact
-      if: ${{ steps.push.outputs.digest != '' }}
+      if: ${{ steps.push.outputs.helm_push_output && steps.push.outputs.helm_push_output != '' }}
       uses: cloudbees-io/register-build-artifact@v2
       with:
         name: ${{ steps.push.outputs.chart-name }}
