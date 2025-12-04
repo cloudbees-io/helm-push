@@ -93,3 +93,4 @@ runs:
         repository-url: ${{ inputs.repository-url }}
         digest: ${{ steps.push.outputs.digest }}
         component-id: ${{ inputs.component-id }}
+        type: "helm"
