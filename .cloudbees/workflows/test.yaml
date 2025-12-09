@@ -35,7 +35,7 @@ jobs:
         uses: .
         with:
           chart: ${{ steps.package.outputs.chart }}
-          remote: oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/helm-push
+          remote: oci://020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/helm-push
           artifact-name: example-chart
           component-id: 740c0efe-6eae-4fd7-b46e-ba34762341f2
       - name: Verify Action output
